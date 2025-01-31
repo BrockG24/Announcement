@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess the Secret Message</title>
+    <title>Match the Cards for a Special Message from Brock & Courtney</title>
     <style>
         body {
             text-align: center;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: #111;
+            background: linear-gradient(135deg, #1a1a1a, #333);
             color: #fff;
             display: flex;
             flex-direction: column;
@@ -16,55 +16,150 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
         h1 {
-            font-size: 48px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-        .reveal-container {
-            font-size: 36px;
-            font-weight: 500;
-            letter-spacing: 2px;
-            padding: 15px;
-            min-width: 320px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            filter: blur(10px);
-            transition: filter 0.2s ease-in-out;
-        }
-        .announcement {
             font-size: 28px;
             font-weight: 500;
+            letter-spacing: 1px;
+        }
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 15px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(145deg, #444, #222);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 10px;
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        .card:hover {
+            transform: scale(1.05);
+        }
+        .hidden {
+            background: linear-gradient(145deg, #555, #333);
+            color: transparent;
+        }
+        .announcement {
+            font-size: 26px;
+            font-weight: 600;
             margin-top: 30px;
             opacity: 0;
             transition: opacity 1s ease-in-out;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
-    <h1>Tap to Reveal the Secret</h1>
-    <div class="reveal-container" id="reveal-text">Ashton is going to be a Big Brother - July 2025</div>
+    <h1>Match the Cards for a Special Message from Brock & Courtney</h1>
+    <div class="game-container" id="gameBoard"></div>
     <div class="announcement" id="announcement">🎉 Baby #2 on the way! 🎉</div>
+    <canvas class="fireworks" id="fireworksCanvas"></canvas>
     
     <script>
-        const revealText = document.getElementById("reveal-text");
-        const announcement = document.getElementById("announcement");
-        let tapCount = 0;
-        const maxTaps = 10;
+        const words = ["🎈", "🎈", "👶", "👶", "🍼", "🍼", "💙", "💙"];
+        let shuffledWords = words.sort(() => Math.random() - 0.5);
+        let gameBoard = document.getElementById("gameBoard");
+        let flippedCards = [];
+        let matchedPairs = 0;
         
-        revealText.addEventListener("click", function() {
-            if (tapCount < maxTaps) {
-                tapCount++;
-                revealText.style.filter = `blur(${10 - tapCount}px)`;
-            }
-            if (tapCount === maxTaps) {
-                setTimeout(() => {
-                    announcement.style.opacity = 1;
-                }, 500);
-            }
+        shuffledWords.forEach((word, index) => {
+            let card = document.createElement("div");
+            card.classList.add("card", "hidden");
+            card.dataset.word = word;
+            card.dataset.index = index;
+            card.addEventListener("click", flipCard);
+            gameBoard.appendChild(card);
         });
+        
+        function flipCard() {
+            if (flippedCards.length < 2 && !this.classList.contains("revealed")) {
+                this.textContent = this.dataset.word;
+                this.classList.remove("hidden");
+                flippedCards.push(this);
+            }
+            
+            if (flippedCards.length === 2) {
+                setTimeout(checkMatch, 800);
+            }
+        }
+        
+        function checkMatch() {
+            if (flippedCards.length < 2) return;
+            
+            if (flippedCards[0].dataset.word === flippedCards[1].dataset.word) {
+                flippedCards.forEach(card => card.classList.add("revealed"));
+                matchedPairs++;
+                if (matchedPairs === words.length / 2) {
+                    document.getElementById("announcement").innerHTML = "🎉 Ashton is going to be a Big Brother! Baby #2 on the way - July 2025! 🎉";
+                    document.getElementById("announcement").style.opacity = 1;
+                    launchFireworks();
+                }
+            } else {
+                flippedCards.forEach(card => {
+                    card.textContent = "";
+                    card.classList.add("hidden");
+                });
+            }
+            flippedCards = [];
+        }
+        
+        function launchFireworks() {
+            const canvas = document.getElementById("fireworksCanvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    speedX: (Math.random() - 0.5) * 6,
+                    speedY: (Math.random() - 0.5) * 6,
+                    size: Math.random() * 5 + 2,
+                    color: `hsl(${Math.random() * 360}, 100%, 50%)`
+                });
+            }
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    p.size *= 0.95;
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
     </script>
 </body>
 </html>
