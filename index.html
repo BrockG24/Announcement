@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Type to Reveal - Baby Announcement</title>
+    <title>Guess the Secret Message</title>
     <style>
         body {
             text-align: center;
@@ -22,19 +22,17 @@
             font-weight: 600;
             margin-bottom: 20px;
         }
-        .input-container {
+        .reveal-container {
             font-size: 36px;
             font-weight: 500;
             letter-spacing: 2px;
-            border-bottom: 2px solid #fff;
             padding: 15px;
             min-width: 320px;
             text-align: center;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-        }
-        .hidden-text {
-            opacity: 0.3;
+            filter: blur(10px);
+            transition: filter 0.2s ease-in-out;
         }
         .announcement {
             font-size: 28px;
@@ -46,25 +44,22 @@
     </style>
 </head>
 <body>
-    <h1>Type to Reveal the Big News</h1>
-    <div class="input-container">
-        <span id="reveal-text" class="hidden-text"></span>
-    </div>
+    <h1>Tap to Reveal the Secret</h1>
+    <div class="reveal-container" id="reveal-text">Ashton is going to be a Big Brother - July 2025</div>
     <div class="announcement" id="announcement">🎉 Baby #2 on the way! 🎉</div>
     
     <script>
         const revealText = document.getElementById("reveal-text");
         const announcement = document.getElementById("announcement");
-        let typedText = "";
-        const fullText = "Ashton is going to be a Big Brother - July 2025";
+        let tapCount = 0;
+        const maxTaps = 10;
         
-        document.addEventListener("keydown", function(event) {
-            if (typedText.length < fullText.length) {
-                typedText += fullText[typedText.length];
-                revealText.textContent = typedText;
-                revealText.classList.remove("hidden-text");
+        revealText.addEventListener("click", function() {
+            if (tapCount < maxTaps) {
+                tapCount++;
+                revealText.style.filter = `blur(${10 - tapCount}px)`;
             }
-            if (typedText.length === fullText.length) {
+            if (tapCount === maxTaps) {
                 setTimeout(() => {
                     announcement.style.opacity = 1;
                 }, 500);
