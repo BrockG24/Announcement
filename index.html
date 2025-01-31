@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Type to Reveal - Baby Announcement</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #111;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .input-container {
+            font-size: 36px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            border-bottom: 2px solid #fff;
+            padding: 15px;
+            min-width: 320px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+        .hidden-text {
+            opacity: 0.3;
+        }
+        .announcement {
+            font-size: 28px;
+            font-weight: 500;
+            margin-top: 30px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <h1>Type to Reveal the Big News</h1>
+    <div class="input-container">
+        <span id="reveal-text" class="hidden-text">Ashton is going to be a Big Brother - July 2025</span>
+    </div>
+    <div class="announcement" id="announcement">🎉 Baby #2 on the way! 🎉</div>
+    
+    <script>
+        const revealText = document.getElementById("reveal-text");
+        const announcement = document.getElementById("announcement");
+        let typedText = "";
+        const fullText = "Ashton is going to be a Big Brother - July 2025";
+        
+        document.addEventListener("keydown", function(event) {
+            if (typedText.length < fullText.length) {
+                typedText += fullText[typedText.length];
+                revealText.textContent = typedText;
+                revealText.classList.remove("hidden-text");
+            }
+            if (typedText.length === fullText.length) {
+                setTimeout(() => {
+                    announcement.style.opacity = 1;
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
